@@ -1,4 +1,11 @@
-import { Stack, Typography, Divider, Grid, useTheme } from "@mui/material";
+import {
+  Stack,
+  Typography,
+  Divider,
+  Grid,
+  useTheme,
+  Button,
+} from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getPosts, like, unlike } from "../utils/apis";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
@@ -18,6 +25,7 @@ export const Posts = (props: Props) => {
   const LIMIT = 10;
   const [page, setPage] = useState(1);
   const theme = useTheme();
+  const [showMore, setShowMore] = useState(false);
 
   const { data, isFetching } = useQuery({
     queryKey: ["getPost", page],
@@ -193,7 +201,16 @@ export const Posts = (props: Props) => {
 
                     <Typography>Description:</Typography>
                     <Typography sx={{ whiteSpace: "break-spaces" }}>
-                      {post.description}
+                      {showMore
+                        ? post.description
+                        : `${post.description.substring(0, 250)}`}
+                      <Button
+                        variant='text'
+                        onClick={() => {
+                          setShowMore((s) => !s);
+                        }}>
+                        {showMore ? "Show less" : "Show more"}
+                      </Button>
                     </Typography>
                   </Stack>
                 </Grid>
