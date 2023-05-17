@@ -202,23 +202,30 @@ export const Posts = (props: Props) => {
                     </Stack>
 
                     <Typography>Description:</Typography>
+
                     <Typography sx={{ whiteSpace: "break-spaces" }}>
                       {showMore.find((s) => s === post._id)
                         ? post.description
                         : `${post.description.substring(0, 250)}`}
-                      <Button
-                        variant='text'
-                        onClick={() => {
-                          if (showMore.find((s) => s === post._id)) {
-                            setShowMore((s) => s.filter((e) => e !== post._id));
-                          } else {
-                            setShowMore((s) => s.concat([post._id]));
-                          }
-                        }}>
-                        {showMore.find((s) => s === post._id)
-                          ? "Show less"
-                          : "Show more"}
-                      </Button>
+                      {post.description.length >= 250 ? (
+                        <Button
+                          variant='text'
+                          onClick={() => {
+                            if (showMore.find((s) => s === post._id)) {
+                              setShowMore((s) =>
+                                s.filter((e) => e !== post._id)
+                              );
+                            } else {
+                              setShowMore((s) => s.concat([post._id]));
+                            }
+                          }}>
+                          {showMore.find((s) => s === post._id)
+                            ? "Show less"
+                            : "Show more"}
+                        </Button>
+                      ) : (
+                        ""
+                      )}
                     </Typography>
                   </Stack>
                 </Grid>
