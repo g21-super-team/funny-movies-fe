@@ -18,19 +18,22 @@ import { useState } from "react";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import { queryClient } from "../lib/react-query";
 import Pagination from "@mui/material/Pagination";
+import { Post } from "../types";
 
 type Props = {};
 
 export const Posts = (props: Props) => {
   const LIMIT = 10;
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState<any>(1);
   const theme = useTheme();
-  const [showMore, setShowMore] = useState(false);
+  const [showMore, setShowMore] = useState<string[]>([]);
+  const [openMovieIds, setOpenMovieIds] = useState<string[]>([]);
 
   const { data, isFetching } = useQuery({
     queryKey: ["getPost", page],
     initialData: {
       result: [],
+      count: 0,
     },
     queryFn: () => getPosts({ limit: LIMIT, skip: LIMIT * (page - 1) }),
     onSuccess: () => {},
@@ -103,11 +106,10 @@ export const Posts = (props: Props) => {
   });
 
   const posts = data?.result;
-  const [openMovieIds, setOpenMovieIds] = useState([]);
 
   return (
     <Stack sx={{ p: 4, overflow: "auto", boxSizing: "border-box" }} spacing={2}>
-      {posts.map((post: any) => {
+      {data?.result.map((post: Post) => {
         return (
           <React.Fragment key={post._id}>
             <Stack direction={"row"} spacing={2}>
@@ -144,7 +146,7 @@ export const Posts = (props: Props) => {
                             cursor: "pointer",
                           }}
                           onClick={() => {
-                            setOpenMovieIds((v) => v.concat(post._id));
+                            setOpenMovieIds((v) => v.concat([post._id]));
                           }}
                         />
                       </Stack>
@@ -201,15 +203,21 @@ export const Posts = (props: Props) => {
 
                     <Typography>Description:</Typography>
                     <Typography sx={{ whiteSpace: "break-spaces" }}>
-                      {showMore
+                      {showMore.find((s) => s === post._id)
                         ? post.description
                         : `${post.description.substring(0, 250)}`}
                       <Button
                         variant='text'
                         onClick={() => {
-                          setShowMore((s) => !s);
+                          if (showMore.find((s) => s === post._id)) {
+                            setShowMore((s) => s.filter((e) => e !== post._id));
+                          } else {
+                            setShowMore((s) => s.concat([post._id]));
+                          }
                         }}>
-                        {showMore ? "Show less" : "Show more"}
+                        {showMore.find((s) => s === post._id)
+                          ? "Show less"
+                          : "Show more"}
                       </Button>
                     </Typography>
                   </Stack>
@@ -220,7 +228,7 @@ export const Posts = (props: Props) => {
           </React.Fragment>
         );
       })}
-      {!isFetching && posts.length ? (
+      {!isFetching && data?.result.length ? (
         <Pagination
           count={data.count ? Math.ceil(data.count / LIMIT) : 0}
           color='primary'
